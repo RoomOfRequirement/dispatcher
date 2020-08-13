@@ -48,11 +48,11 @@ public:
     size_t waiting_tasks();
 
 private:
-    int next_to();
+    size_t next_to();
 
 private:
     task_forward_strategy strategy_;
-    size_t next_idx_;
+    size_t next_idx_;  // use atomic type if push/send used in multi-threading env
     std::vector<std::unique_ptr<task_runner>> runners;
 };
 
@@ -100,7 +100,7 @@ inline void task_group::send(F &&f) {
     runners[next_to()]->send(std::forward<F>(f));
 }
 
-inline int task_group::next_to() {
+inline size_t task_group::next_to() {
     auto n_runners = runners.size();
     switch (strategy_) {
         case ROUND_ROBIN:
